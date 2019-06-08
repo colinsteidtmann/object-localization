@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
 from NeuralNets import ConvNet as cn
-from NeuralNets import FullyConnected as fc
 import math
 import time
 import numpy as np
