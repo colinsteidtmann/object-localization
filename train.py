@@ -1,7 +1,7 @@
 import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-tf.keras.backend.set_session.set_session(tf.Session(config=config))
+tf.keras.backend.set_session(tf.Session(config=config))
 import csv
 import math
 import os
