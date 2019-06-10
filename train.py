@@ -134,7 +134,8 @@ def main():
             yield X_batch, true_boxes_batch, true_classes_batch
 
     
-
+    print(classNN.predict(train_images).shape)
+    sys.exit()
     n_epochs = 10
     batch_size = 100
     boxNN.fit(train_images, train_boxes, batch_size=batch_size, epochs=n_epochs, shuffle=True)
