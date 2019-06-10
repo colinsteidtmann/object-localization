@@ -125,13 +125,6 @@ def main():
     train_labels_one_hot = tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES)
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
-
-    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
-    draw = ImageDraw.Draw(img)
-    draw.rectangle((np.random.rand(4)*3).tolist())
-    img.save('my.png')
-    img.show()
-
     n_epochs = 100
     batch_size = 100
     model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
@@ -143,6 +136,19 @@ def main():
     test_image_predictions = model.predict(test_images[22:23])
     predicted_box_coords, predicted_class = test_image_predictions[0], np.argmax(test_image_predictions[1])
     
+    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
+    draw = ImageDraw.Draw(img)
+    draw.rectangle(predicted_box_coords.tolist())
+    img.save('predicted.png')
+    img.show()
+
+    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
+    draw = ImageDraw.Draw(img)
+    draw.rectangle(np.array(test_boxes[22]).tolist())
+    img.save('actual.png')
+    img.show()
+
+    print("predicted_class = ", predicted_class, "actual class = ", test_classes[22])
         
 
 if __name__ == "__main__":
