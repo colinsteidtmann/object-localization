@@ -136,8 +136,8 @@ def main():
     for epoch in range(n_epochs):
         for X_batch, true_boxes_batch, true_classes_batch in shuffle_batch(train_images, train_boxes, train_labels_one_hot, batch_size):
             boxNN.fit(X_batch, true_boxes_batch, batch_size=batch_size, epochs=1, shuffle=False)
-            #print(true_classes_batch.shape)
-            classNN.fit(X_batch, true_classes_batch.reshape((-1,NUM_CLASSES)), batch_size=batch_size, epochs=1, shuffle=False)
+            print("shape = ", true_classes_batch.shape)
+            classNN.fit(X_batch, true_classes_batch, batch_size=batch_size, epochs=1, shuffle=False)
 
 
         train_box_predictions = boxNN.predict(train_images)
