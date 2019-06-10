@@ -94,7 +94,7 @@ def create_model():
     """boxConvnet branch"""
     box_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
     box_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(box_conv_layer1)
-     box_conv_layer3 = tf.keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer2)
+    box_conv_layer3 = tf.keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer2)
     box_conv_layer4 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer3)
     box_conv_layer4 = tf.keras.layers.Flatten(name='box_output')(box_conv_layer4)
     
