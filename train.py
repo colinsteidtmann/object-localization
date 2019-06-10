@@ -121,12 +121,13 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     
-    print(train_labels_one_hot.shape)
-    sys.exit()
+    #print(train_labels_one_hot.shape)
+    #sys.exit()
     n_epochs = 10
     batch_size = 100
-    boxNN.fit(train_images, train_boxes, batch_size=batch_size, epochs=n_epochs, shuffle=True)
     classNN.fit(train_images, train_labels_one_hot, batch_size=batch_size, epochs=n_epochs, shuffle=True)
+    boxNN.fit(train_images, train_boxes, batch_size=batch_size, epochs=n_epochs, shuffle=True)
+    
     
     score = classNN.evaluate(test_images, test_labels_one_hot, verbose=0)
     print('Test class loss:', score[0])
