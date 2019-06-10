@@ -98,11 +98,13 @@ def create_model():
     class_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(class_conv_layer1)
     class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
 
-
+    box_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
     box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
-    box_model.compile('sgd', loss=tf.keras.losses.MeanSquaredError())
+    box_model.compile(optimizer=class_model_optimizer, loss=tf.keras.losses.MeanSquaredError())
+    
+    class_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
     class_model = tf.keras.Model(inputs=inputs, outputs=class_conv_layer3)
-    class_model.compile('sgd', loss=tf.keras.losses.CategoricalCrossentropy())
+    class_model.compile(optimizer=class_model_optimizer, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=["accuracy"])
 
     return box_model, class_model
 
