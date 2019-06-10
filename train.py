@@ -117,24 +117,11 @@ def main():
     test_images, test_boxes, test_classes = val_generator.getitems()
 
     """ Labels one hot encoded """
-    train_labels_one_hot = np.zeros((len(train_classes), NUM_CLASSES))
-    for idx, hot_idx in enumerate(train_classes):
-        train_labels_one_hot[idx, int(hot_idx)] = 1
-
-    test_labels_one_hot = np.zeros((len(test_classes), NUM_CLASSES))
-    for idx, hot_idx in enumerate(test_classes):
-        test_labels_one_hot[idx, int(hot_idx)] = 1
-
-    """ Training and testing """
-    def shuffle_batch(X, true_boxes, true_classes, batch_size):
-        rnd_idx = np.random.permutation(len(X))
-        n_batches = len(X) // batch_size
-        for batch_idx in np.array_split(rnd_idx, n_batches):
-            X_batch, true_boxes_batch, true_classes_batch = X[batch_idx], true_boxes[batch_idx], true_classes[batch_idx]
-            yield X_batch, true_boxes_batch, true_classes_batch
+    train_labels_one_hot = tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES)
+    test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     
-    print(classNN.predict(train_images).shape)
+    print(train_labels_one_hot.shape)
     sys.exit()
     n_epochs = 10
     batch_size = 100
