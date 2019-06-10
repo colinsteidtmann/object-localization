@@ -92,47 +92,46 @@ def create_model():
     box_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
     box_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer1)
     box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer2)
+    box_conv_layer3 = tf.keras.layers.Reshape((4), name='box_output')(box_conv_layer3)
     
     """classConvnet branch"""
     class_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
     class_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(class_conv_layer1)
     class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
+    class_conv_layer3 = tf.keras.layers.Reshape((NUM_CLASSES), name='class_output')(class_conv_layer3)
 
-    box_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
-    box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
-    box_model.compile(optimizer=box_model_optimizer, loss=tf.keras.losses.MeanSquaredError())
-    
-    class_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
-    class_model = tf.keras.Model(inputs=inputs, outputs=class_conv_layer3)
-    class_model.compile(optimizer=class_model_optimizer, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=["accuracy"])
+    model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
+    model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
+    model.compile(optimizer=model_optimizer,
+                loss=[tf.keras.losses.MeanSquaredError(), tf.keras.losses.CategoricalCrossentropy()],
+                metrics={'box_output': 'mean_squared_error',
+                        'class_output': 'categorical_accuracy'})
 
-    return box_model, class_model
+
+    return model
 
 
 def main():
-    boxNN, classNN = create_model()
+    model = create_model()
     train_datagen = DataGenerator(TRAIN_CSV)
     val_generator = DataGenerator(VALIDATION_CSV)
     train_images, train_boxes, train_classes = train_datagen.getitems()
     test_images, test_boxes, test_classes = val_generator.getitems()
 
     """ Labels one hot encoded """
-    train_labels_one_hot = tf.reshape(tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES), [len(train_classes),1,1,NUM_CLASSES])
-    test_labels_one_hot = tf.reshape(tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES), [len(test_classes),1,1,NUM_CLASSES])
+    train_labels_one_hot = tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES), [len(train_classes)
+    test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES), [len(test_classes)
 
     
-    #print(train_labels_one_hot.shape)
-    #sys.exit()
+    print(model.predict(train_images).shape)
+    sys.exit()
     n_epochs = 10
     batch_size = 100
-    print(train_labels_one_hot.shape)
-    classNN.fit(train_images, train_labels_one_hot, batch_size=batch_size,steps_per_epoch=1, epochs=n_epochs, shuffle=True)
-    boxNN.fit(train_images, train_boxes, batch_size=batch_size, epochs=n_epochs, shuffle=True)
+    model.fit(train_images, [train_boxes,train_labels_one_hot], batch_size=batch_size, epochs=n_epochs, shuffle=True)
     
     
-    score = classNN.evaluate(test_images, test_labels_one_hot, verbose=0)
-    print('Test class loss:', score[0])
-    print('Test class accuracy:', score[1])
+    score = model.evaluate(test_images, [test_boxes, test_labels_one_hot], verbose=0)
+    print(score)
         
 
 if __name__ == "__main__":
