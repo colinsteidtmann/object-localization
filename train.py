@@ -100,7 +100,7 @@ def create_model():
 
     box_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
     box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
-    box_model.compile(optimizer=class_model_optimizer, loss=tf.keras.losses.MeanSquaredError())
+    box_model.compile(optimizer=box_model_optimizer, loss=tf.keras.losses.MeanSquaredError())
     
     class_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
     class_model = tf.keras.Model(inputs=inputs, outputs=class_conv_layer3)
