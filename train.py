@@ -105,7 +105,7 @@ def create_model():
     class_conv_layer3 = tf.keras.layers.Flatten(name='class_output')(class_conv_layer3)
 
     model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
-    model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer4])
+    model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer4, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
                 loss=[tf.keras.losses.MeanSquaredError(), tf.keras.losses.CategoricalCrossentropy()],
                 loss_weights={'box_output': 1.0,
