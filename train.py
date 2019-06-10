@@ -126,30 +126,31 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     """ training """
-    n_epochs = 100
-    batch_size = 100
-    model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
-    
-    """ testing """
-    score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
-    print(score)
+    for _ in range(100):
+        n_epochs = 1
+        batch_size = 100
+        model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
+        
+        """ testing """
+        #score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
+        #print(score)
 
-    test_image_predictions = model.predict(test_images[22:23])
-    predicted_box_coords, predicted_class = np.squeeze(test_image_predictions[0]), np.argmax(test_image_predictions[1])
-    
-    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
-    draw = ImageDraw.Draw(img)
-    draw.rectangle(predicted_box_coords.tolist())
-    img.save('predicted.png')
-    img.show()
+        test_image_predictions = model.predict(test_images[22:23])
+        predicted_box_coords, predicted_class = np.squeeze(test_image_predictions[0]), np.argmax(test_image_predictions[1])
+        
+        img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
+        draw = ImageDraw.Draw(img)
+        draw.rectangle(predicted_box_coords.tolist())
+        img.save('predicted.png')
+        img.show()
 
-    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
-    draw = ImageDraw.Draw(img)
-    draw.rectangle(np.array(test_boxes[22]).tolist())
-    img.save('actual.png')
-    img.show()
+        img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
+        draw = ImageDraw.Draw(img)
+        draw.rectangle(np.array(test_boxes[22]).tolist())
+        img.save('actual.png')
+        img.show()
 
-    print("predicted_class = ", predicted_class, "actual class = ", test_classes[22])
+        print("predicted_class = ", predicted_class, "actual class = ", test_classes[22])
         
 
 if __name__ == "__main__":
