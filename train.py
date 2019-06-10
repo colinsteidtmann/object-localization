@@ -128,8 +128,7 @@ def main():
         rnd_idx = np.random.permutation(len(X))
         n_batches = len(X) // batch_size
         for batch_idx in np.array_split(rnd_idx, n_batches):
-            X_batch, true_boxes_batch, true_classes_batch = X[
-                batch_idx], true_boxes[batch_idx], true_classes[batch_idx]
+            X_batch, true_boxes_batch, true_classes_batch = X[batch_idx], true_boxes[batch_idx], true_classes[batch_idx]
             yield X_batch, true_boxes_batch, true_classes_batch
 
     n_epochs = 10
@@ -137,6 +136,7 @@ def main():
     for epoch in range(n_epochs):
         for X_batch, true_boxes_batch, true_classes_batch in shuffle_batch(train_images, train_boxes, train_labels_one_hot, batch_size):
             boxNN.fit(X_batch, true_boxes_batch, batch_size=batch_size, epochs=1, shuffle=False)
+            print(true_classes_batch.shape)
             classNN.fit(X_batch, true_classes_batch, batch_size=batch_size, epochs=1, shuffle=False)
 
 
