@@ -125,8 +125,7 @@ def main():
     train_labels_one_hot = tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES)
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
-    print(model.predict(test_images[22:23])[0].tolist())
-    sys.exit()
+    print(np.squeeze(model.predict(test_images[22:23])[0]).tolist())
     """ training """
     n_epochs = 100
     batch_size = 100
@@ -137,7 +136,7 @@ def main():
     print(score)
 
     test_image_predictions = model.predict(test_images[22:23])
-    predicted_box_coords, predicted_class = test_image_predictions[0], np.argmax(test_image_predictions[1])
+    predicted_box_coords, predicted_class = np.squeeze(test_image_predictions[0]), np.argmax(test_image_predictions[1])
     
     img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
     draw = ImageDraw.Draw(img)
