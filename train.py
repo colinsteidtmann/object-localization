@@ -119,8 +119,8 @@ def main():
     test_images, test_boxes, test_classes = val_generator.getitems()
 
     """ Labels one hot encoded """
-    train_labels_one_hot = tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES), [len(train_classes)
-    test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES), [len(test_classes)
+    train_labels_one_hot = tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES)
+    test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     
     print(model.predict(train_images).shape)
