@@ -127,12 +127,12 @@ def main():
 
     
 
-    n_epochs = 1
+    n_epochs = 10
     batch_size = 100
     model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True)
     
     
-    score = model.evaluate(test_images, [test_boxes, test_labels_one_hot], verbose=0)
+    score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
     print(score)
         
 
