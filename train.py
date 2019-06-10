@@ -72,31 +72,31 @@ def create_model():
     inputs = tf.keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
     
     #FeatureMapConvNet
-    conv_layer1 = tf.keras.layers.Conv2D(filters=8, kernel_size=[5, 5], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(inputs)
+    conv_layer1 = tf.keras.layers.Conv2D(filters=8, kernel_size=[5, 5], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(inputs)
     pool_layer1 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer1)
     
-    conv_layer2 = tf.keras.layers.Conv2D(filters=8, kernel_size=[5, 5], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer1)
+    conv_layer2 = tf.keras.layers.Conv2D(filters=8, kernel_size=[5, 5], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer1)
     pool_layer2 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer2)
     
-    conv_layer3 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer2)
+    conv_layer3 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer2)
     pool_layer3 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer3)
     
-    conv_layer4 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer3)
+    conv_layer4 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer3)
     pool_layer4 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer4)
     
-    conv_layer5 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer4)
+    conv_layer5 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer4)
     pool_layer5 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer5)
     norm_pool_layer5 = tf.keras.layers.BatchNormalization(axis=-1)(pool_layer5)
     
     """boxConvnet branch"""
-    box_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
-    box_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], stride_size=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer1)
-    box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], stride_size=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer2)
+    box_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
+    box_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer1)
+    box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer2)
     
     """classConvnet branch"""
-    class_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
-    class_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], stride_size=[1, 1], padding="same",data_format="channels_last", activation="relu")(class_conv_layer1)
-    class_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], stride_size=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
+    class_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
+    class_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(class_conv_layer1)
+    class_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
 
 
     box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
