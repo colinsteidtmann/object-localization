@@ -106,10 +106,10 @@ def create_model():
     model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
-                loss=[tf.keras.losses.MeanSquaredError(), tf.keras.losses.CategoricalCrossentropy()],
+                loss=[tf.keras.losses.MeanAbsoluteError(), tf.keras.losses.CategoricalCrossentropy()],
                 loss_weights={'box_output': 10.,
                         'class_output': 0.5},
-                metrics={'box_output': 'mean_squared_error',
+                metrics={'box_output': 'mean_absolute_error',
                         'class_output': 'categorical_accuracy'})
 
 
@@ -128,7 +128,7 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     """ training """
-    n_epochs = 100
+    n_epochs = 25
     batch_size = 100
     model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
     
