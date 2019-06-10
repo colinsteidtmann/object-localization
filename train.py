@@ -97,7 +97,7 @@ def create_model():
     class_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
     class_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(class_conv_layer1)
     class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
-    class_conv_layer3 = tf.squeeze(class_conv_layer3)
+    class_conv_layer3 = tf.keras.layers.Reshape((None, NUM_CLASSES))(class_conv_layer3)
 
     box_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
     box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
