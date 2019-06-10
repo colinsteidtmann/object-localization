@@ -134,6 +134,9 @@ def main():
     
     score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
     print(score)
+
+    test_image_predictions = model.predict(test_images[22:23])
+    print(test_image_predictions)
         
 
 if __name__ == "__main__":
