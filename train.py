@@ -127,8 +127,9 @@ def main():
 
 
     img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
+    draw = ImageDraw.Draw(img)
+    draw.rectangle(np.random.randint(4))
     img.save('my.png')
-    img.ImageDraw.rectangle(np.random.randint(4))
     img.show()
 
     n_epochs = 100
