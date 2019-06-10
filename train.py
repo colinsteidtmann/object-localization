@@ -106,7 +106,7 @@ def create_model():
     model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
-                loss=[tf.keras.losses.logcosh(), tf.keras.losses.CategoricalCrossentropy()],
+                loss=[tf.keras.losses.MeanSquaredError(), tf.keras.losses.CategoricalCrossentropy()],
                 loss_weights={'box_output': 10.,
                         'class_output': 0.5},
                 metrics={'box_output': 'mean_squared_error',
