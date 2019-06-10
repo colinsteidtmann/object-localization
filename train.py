@@ -1,3 +1,4 @@
+import tensorflow as tf
 import csv
 import math
 import os
@@ -5,8 +6,6 @@ import sys
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageEnhance
-from NeuralNets import ConvNet as cnn
-from NeuralNets import NeuralNetwork as neuralnetwork
 import random
 
 TRAIN_CSV = "train.csv"
@@ -69,67 +68,43 @@ class DataGenerator():
 
 
 def create_model():
-    fmapConvnet = cnn.ConvNet(
-        conv_method="convolution",
-        layer_names=["conv", "pool", "conv", "pool",
-                     "conv", "pool", "conv", "pool", "conv", "pool"],
-        num_filters=[8, None, 8, None, 6, None, 6, None, 6, None],
-        kernel_sizes=[[5, 5], None, [5, 5], None, [
-            4, 4], None, [4, 4], None, [4, 4], None],
-        stride_sizes=[[1, 1], [2, 2], [1, 1], [2, 2], [
-            1, 1], [2, 2], [1, 1], [2, 2], [1, 1], [2, 2]],
-        pool_sizes=[None, [2, 2], None, [2, 2], None,
-                    [2, 2], None, [2, 2], None, [2, 2]],
-        pool_fns=[None, "max", None, "max", None,
-                  "max", None, "max", None, "max"],
-        pad_fns=["valid", "valid", "valid", "valid", "valid",
-                 "valid", "valid", "valid", "valid", "valid"],
-        activations=["relu", None, "relu", None,
-                     "relu", None, "relu", None, "relu", None],
-        input_channels=3,
-        scale_method=None,
-        optimizer="nadam",
-        lr=0.005,
-        lr_decay=(0.0)
-    )
-    boxConvnet = cnn.ConvNet(
-        conv_method="convolution",
-        layer_names=["conv", "conv", "conv"],
-        num_filters=[256, 128, 4],
-        kernel_sizes=[[4, 4], [1, 1], [1, 1]],
-        stride_sizes=[[1, 1], [1, 1], [1, 1]],
-        pool_sizes=[None, None, None],
-        pool_fns=[None, None, None],
-        pad_fns=["valid", "same", "same"],
-        activations=["relu", "relu", "linear"],
-        input_channels=6,
-        scale_method="normalize",
-        optimizer="nadam",
-        lr=0.005,
-        lr_decay=(0.0)
-    )
-    classConvnet = cnn.ConvNet(
-        conv_method="convolution",
-        layer_names=["conv", "conv", "conv"],
-        num_filters=[256, 128, NUM_CLASSES],
-        kernel_sizes=[[4, 4], [1, 1], [1, 1]],
-        stride_sizes=[[1, 1], [1, 1], [1, 1]],
-        pool_sizes=[None, None, None],
-        pool_fns=[None, None, None],
-        pad_fns=["valid", "same", "same"],
-        activations=["relu", "relu", "softmax"],
-        input_channels=6,
-        scale_method="normalize",
-        optimizer="nadam",
-        lr=0.005,
-        lr_decay=(0.0)
-    )
-    boxNN = neuralnetwork.NeuralNetwork(
-        [fmapConvnet, boxConvnet], loss_fn="mean_squared_error")
-    classNN = neuralnetwork.NeuralNetwork(
-        [fmapConvnet, classConvnet], loss_fn="cross_entropy")
+    #Inputs
+    inputs = tf.keras.Input(shape=(-1, IMAGE_SIZE, IMAGE_SIZE, 3))
+    
+    #FeatureMapConvNet
+    conv_layer1 = tf.keras.layers.Conv2D(filters=8, kernel_size=[5, 5], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(inputs)
+    pool_layer1 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer1)
+    
+    conv_layer2 = tf.keras.layers.Conv2D(filters=8, kernel_size=[5, 5], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer1)
+    pool_layer2 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer2)
+    
+    conv_layer3 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer2)
+    pool_layer3 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer3)
+    
+    conv_layer4 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer3)
+    pool_layer4 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer4)
+    
+    conv_layer5 = tf.keras.layers.Conv2D(filters=6, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(pool_layer4)
+    pool_layer5 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer5)
+    norm_pool_layer5 = tf.keras.layers.BatchNormalization(axis=-1)(pool_layer5)
+    
+    """boxConvnet branch"""
+    box_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
+    box_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], stride_size=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer1)
+    box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], stride_size=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer2)
+    
+    """classConvnet branch"""
+    class_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
+    class_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], stride_size=[1, 1], padding="same",data_format="channels_last", activation="relu")(class_conv_layer1)
+    class_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], stride_size=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
 
-    return boxNN, classNN
+
+    box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
+    box_model.compile('sgd', loss=tf.keras.losses.MeanSquaredError())
+    class_model = tf.keras.Model(inputs=inputs, outputs=class_conv_layer3)
+    class_model.compile('sgd', loss=tf.keras.losses.CategoricalCrossentropy())
+
+    return box_model, class_model
 
 
 def main():
@@ -161,32 +136,23 @@ def main():
     batch_size = 100
     for epoch in range(n_epochs):
         for X_batch, true_boxes_batch, true_classes_batch in shuffle_batch(train_images, train_boxes, train_labels_one_hot, batch_size):
-            boxNN.check_gradients(X_batch, true_boxes_batch)
-            classNN.check_gradients(X_batch, true_classes_batch)
-            boxNN.sgd_fit(X_batch, true_boxes_batch,
-                          batch_size=batch_size, shuffle_inputs=False)
-            classNN.sgd_fit(X_batch, true_classes_batch,
-                            batch_size=batch_size, shuffle_inputs=False)
+            boxNN.fit(X_batch, true_boxes_batch, batch_size=batch_size, epochs=1, shuffle=False)
+            classNN.fit(X_batch, true_classes_batch, batch_size=batch_size, epochs=1, shuffle=False)
 
-        train_box_predictions = boxNN.feedforward(
-            train_images, scale=True, test=True)
-        train_classes_predictions = classNN.feedforward(
-            train_images, scale=True, test=True)
 
-        test_box_predictions = boxNN.feedforward(
-            test_images, scale=True, test=True)
-        test_classes_predictions = classNN.feedforward(
-            test_images, scale=True, test=True)
+        train_box_predictions = boxNN.predict(train_images)
+        train_classes_predictions = classNN.predict(train_images)
 
-        train_box_loss = boxNN.get_losses(train_box_predictions, train_boxes)
-        test_box_loss = boxNN.get_losses(test_box_predictions, test_boxes)
+        test_box_predictions = boxNN.predict(test_images)
+        test_classes_predictions = classNN.predict(test_images)
 
-        train_class_pct_correct = np.mean(np.squeeze(
-            np.argmax(train_predictions, 1)) == np.argmax(train_labels_one_hot, 1))
-        test_class_pct_correct = np.mean(np.squeeze(
-            np.argmax(test_predictions, 1)) == np.argmax(test_labels_one_hot, 1))
-        print(epoch, "Last batch class accuracy:", train_class_pct_correct, "Test class accuracy:",
-              test_class_pct_correct, "Last batch boxes loss:", train_box_loss, "Test boxes loss:", test_box_loss)
+        train_box_loss = tf.keras.losses.MeanSquaredError(train_boxes, train_box_predictions)
+        test_box_loss = tf.keras.losses.MeanSquaredError(test_boxes, test_box_predictions)
+
+        train_class_loss = tf.keras.losses.CategoricalCrossentropy(train_labels_one_hot, train_classes_predictions)
+        test_class_loss = tf.keras.losses.CategoricalCrossentropy(test_labels_one_hot, test_classes_predictions)
+        print(epoch, "Last batch class loss:", train_class_loss, "Test class loss:",
+              test_class_loss, "Last batch boxes loss:", train_box_loss, "Test boxes loss:", test_box_loss)
 
 
 if __name__ == "__main__":
