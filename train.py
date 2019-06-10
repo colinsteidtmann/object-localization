@@ -69,7 +69,7 @@ class DataGenerator():
 
 def create_model():
     #Inputs
-    inputs = tf.keras.Input(shape=(-1, IMAGE_SIZE, IMAGE_SIZE, 3))
+    inputs = tf.keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
     
     #FeatureMapConvNet
     conv_layer1 = tf.keras.layers.Conv2D(filters=8, kernel_size=[5, 5], stride_size=[1, 1], padding="valid",data_format="channels_last", activation="relu")(inputs)
