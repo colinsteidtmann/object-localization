@@ -127,8 +127,9 @@ def main():
 
     
     test_image_predictions = model.predict(test_images[22:23])
-    print(test_image_predictions)
-    
+    predicted_box_coords, predicted_class = test_image_predictions[0], np.argmax(test_image_predictions[1])
+    print(predicted_box_coords, predicted_class)
+
     n_epochs = 100
     batch_size = 100
     model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
