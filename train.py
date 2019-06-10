@@ -127,7 +127,7 @@ def main():
 
     print(np.squeeze(model.predict(test_images[22:23])[0]).tolist())
     """ training """
-    n_epochs = 100
+    n_epochs = 5
     batch_size = 100
     model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
     
