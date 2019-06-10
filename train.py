@@ -1,4 +1,6 @@
 import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
 import csv
 import math
 import os
