@@ -126,10 +126,9 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     
-    print(model.predict(train_images[1:2]).shape)
-    sys.exit()
+
     n_epochs = 1
-    batch_size = 1
+    batch_size = 100
     model.fit(train_images, [train_boxes,train_labels_one_hot], batch_size=batch_size, epochs=n_epochs, shuffle=True)
     
     
