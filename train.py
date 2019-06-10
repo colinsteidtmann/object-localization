@@ -126,7 +126,7 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
 
-    img = Image.fromarray(test_images[22].astype(int), 'RGB')
+    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
     img.save('my.png')
     img.show()
 
