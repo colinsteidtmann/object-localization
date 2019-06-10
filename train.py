@@ -97,13 +97,12 @@ def create_model():
     class_conv_layer1 = tf.keras.layers.Conv2D(filters=256, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
     class_conv_layer2 = tf.keras.layers.Conv2D(filters=128, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(class_conv_layer1)
     class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
-    #class_conv_layer3 = tf.keras.layers.Reshape((NUM_CLASSES,1))(class_conv_layer3)
 
 
     box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
     box_model.compile('sgd', loss=tf.keras.losses.MeanSquaredError())
     class_model = tf.keras.Model(inputs=inputs, outputs=class_conv_layer3)
-    class_model.compile('sgd', loss=tf.keras.losses.BinaryCrossentropy())
+    class_model.compile('sgd', loss=tf.keras.losses.CategoricalCrossentropy())
 
     return box_model, class_model
 
@@ -132,29 +131,17 @@ def main():
             X_batch, true_boxes_batch, true_classes_batch = X[batch_idx], true_boxes[batch_idx], true_classes[batch_idx]
             yield X_batch, true_boxes_batch, true_classes_batch
 
+    
+
     n_epochs = 10
     batch_size = 100
-    for epoch in range(n_epochs):
-        for X_batch, true_boxes_batch, true_classes_batch in shuffle_batch(train_images, train_boxes, train_labels_one_hot, batch_size):
-            boxNN.fit(X_batch, true_boxes_batch, batch_size=batch_size, epochs=1, shuffle=False)
-            print("shape = ", true_classes_batch.shape)
-            classNN.fit(X_batch, true_classes_batch, batch_size=batch_size, epochs=1, shuffle=False)
-
-
-        train_box_predictions = boxNN.predict(train_images)
-        train_classes_predictions = classNN.predict(train_images)
-
-        test_box_predictions = boxNN.predict(test_images)
-        test_classes_predictions = classNN.predict(test_images)
-
-        train_box_loss = tf.keras.losses.MeanSquaredError(train_boxes, train_box_predictions)
-        test_box_loss = tf.keras.losses.MeanSquaredError(test_boxes, test_box_predictions)
-
-        train_class_loss = tf.keras.losses.CategoricalCrossentropy(train_labels_one_hot, train_classes_predictions)
-        test_class_loss = tf.keras.losses.CategoricalCrossentropy(test_labels_one_hot, test_classes_predictions)
-        print(epoch, "Last batch class loss:", train_class_loss, "Test class loss:",
-              test_class_loss, "Last batch boxes loss:", train_box_loss, "Test boxes loss:", test_box_loss)
-
+    boxNN.fit(train_images, train_boxes, batch_size=batch_size, epochs=epochs, shuffle=True)
+    classNN.fit(train_images, train_labels_one_hot, batch_size=batch_size, epochs=epochs, shuffle=True)
+    
+    score = classNN.evaluate(test_images, test_labels_one_hot, verbose=0)
+    print('Test class loss:', score[0])
+    print('Test class accuracy:', score[1])
+        
 
 if __name__ == "__main__":
     main()
