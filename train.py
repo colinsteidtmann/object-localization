@@ -125,11 +125,14 @@ def main():
     train_labels_one_hot = tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES)
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
+    print(model.predict(test_images[22:23])[0].tolist())
+    sys.exit()
+    """ training """
     n_epochs = 100
     batch_size = 100
     model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
     
-    
+    """ testing """
     score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
     print(score)
 
