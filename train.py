@@ -103,7 +103,7 @@ def create_model():
     box_model.compile(optimizer=box_model_optimizer, loss=tf.keras.losses.MeanSquaredError())
     
     class_model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
-    class_model = tf.keras.Model(inputs=inputs, outputs=class_conv_layer3)
+    class_model = tf.keras.Model(inputs=inputs, outputs=tf.squeeze(class_conv_layer3))
     class_model.compile(optimizer=class_model_optimizer, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=["accuracy"])
 
     return box_model, class_model
