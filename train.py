@@ -126,7 +126,7 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     
-    print(model.predict(train_images[1]).shape)
+    print(model.predict(train_images[1:2]).shape)
     sys.exit()
     n_epochs = 1
     batch_size = 1
