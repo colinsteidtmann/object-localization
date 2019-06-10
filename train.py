@@ -1,7 +1,4 @@
 import tensorflow as tf
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.7
 import csv
 import math
 import os
@@ -126,14 +123,14 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     
-
-    n_epochs = 1
-    batch_size = 100
-    model.fit(train_images, [train_boxes,train_labels_one_hot], batch_size=batch_size, epochs=n_epochs, shuffle=True)
+    model.predict(train_images[1:2])
+    # n_epochs = 1
+    # batch_size = 100
+    # model.fit(train_images, [train_boxes,train_labels_one_hot], batch_size=batch_size, epochs=n_epochs, shuffle=True)
     
     
-    score = model.evaluate(test_images, [test_boxes, test_labels_one_hot], verbose=0)
-    print(score)
+    # score = model.evaluate(test_images, [test_boxes, test_labels_one_hot], verbose=0)
+    # print(score)
         
 
 if __name__ == "__main__":
