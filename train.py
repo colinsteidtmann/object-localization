@@ -103,7 +103,7 @@ def create_model():
     box_model = tf.keras.Model(inputs=inputs, outputs=box_conv_layer3)
     box_model.compile('sgd', loss=tf.keras.losses.MeanSquaredError())
     class_model = tf.keras.Model(inputs=inputs, outputs=class_conv_layer3)
-    class_model.compile('sgd', loss=tf.keras.losses.CategoricalCrossentropy())
+    class_model.compile('sgd', loss=tf.keras.losses.BinaryCrossentropy())
 
     return box_model, class_model
 
