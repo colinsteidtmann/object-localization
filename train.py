@@ -128,7 +128,7 @@ def main():
 
     img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
     draw = ImageDraw.Draw(img)
-    draw.rectangle(np.random.rand(4)*3)
+    draw.rectangle((np.random.rand(4)*3).tolist())
     img.save('my.png')
     img.show()
 
