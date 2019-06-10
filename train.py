@@ -125,7 +125,7 @@ def main():
     #sys.exit()
     n_epochs = 10
     batch_size = 100
-    classNN.fit(train_images, train_labels_one_hot, batch_size=batch_size,steps_per_epoch=(len(train_classes)/batch_size), epochs=n_epochs, shuffle=True)
+    classNN.fit(train_images, train_labels_one_hot, batch_size=batch_size,steps_per_epoch=(int(len(train_classes)/batch_size)), epochs=n_epochs, shuffle=True)
     boxNN.fit(train_images, train_boxes, batch_size=batch_size, epochs=n_epochs, shuffle=True)
     
     
