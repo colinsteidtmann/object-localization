@@ -117,8 +117,8 @@ def main():
     test_images, test_boxes, test_classes = val_generator.getitems()
 
     """ Labels one hot encoded """
-    train_labels_one_hot = tf.reshape(tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES), [-1,1,1,NUM_CLASSES])
-    test_labels_one_hot = tf.reshape(tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES), [-1,1,1,NUM_CLASSES])
+    train_labels_one_hot = tf.reshape(tf.keras.utils.to_categorical(train_classes, num_classes=NUM_CLASSES), [len(train_classes),1,1,NUM_CLASSES])
+    test_labels_one_hot = tf.reshape(tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES), [len(test_classes),1,1,NUM_CLASSES])
 
     
     #print(train_labels_one_hot.shape)
