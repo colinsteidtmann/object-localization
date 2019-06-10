@@ -93,7 +93,8 @@ def create_model():
     
     """boxConvnet branch"""
     box_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(norm_pool_layer5)
-    box_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer1)
+    box_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(box_conv_layer1)
+     box_conv_layer2 = tf.keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], padding="same",data_format="channels_last", activation="relu")(box_conv_layer1)
     box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer2)
     box_conv_layer3 = tf.keras.layers.Flatten(name='box_output')(box_conv_layer3)
     
@@ -107,6 +108,8 @@ def create_model():
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
                 loss=[tf.keras.losses.MeanSquaredError(), tf.keras.losses.CategoricalCrossentropy()],
+                loss_weights={'box_output': 1.0,
+                        'class_output': 0.75},
                 metrics={'box_output': 'mean_squared_error',
                         'class_output': 'categorical_accuracy'})
 
@@ -126,31 +129,30 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     """ training """
-    for _ in range(100):
-        n_epochs = 1
-        batch_size = 100
-        model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
-        
-        """ testing """
-        #score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
-        #print(score)
+    n_epochs = 100
+    batch_size = 100
+    model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
+    
+    """ testing """
+    score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
+    print(score)
 
-        test_image_predictions = model.predict(test_images[22:23])
-        predicted_box_coords, predicted_class = np.squeeze(test_image_predictions[0]), np.argmax(test_image_predictions[1])
-        
-        img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
-        draw = ImageDraw.Draw(img)
-        draw.rectangle(predicted_box_coords.tolist())
-        img.save('predicted.png')
-        img.show()
+    test_image_predictions = model.predict(test_images[22:23])
+    predicted_box_coords, predicted_class = np.squeeze(test_image_predictions[0]), np.argmax(test_image_predictions[1])
+    
+    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
+    draw = ImageDraw.Draw(img)
+    draw.rectangle(predicted_box_coords.tolist())
+    img.save('predicted.png')
+    img.show()
 
-        img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
-        draw = ImageDraw.Draw(img)
-        draw.rectangle(np.array(test_boxes[22]).tolist())
-        img.save('actual.png')
-        img.show()
+    img = Image.fromarray(test_images[22].astype(np.uint8()), 'RGB')
+    draw = ImageDraw.Draw(img)
+    draw.rectangle(np.array(test_boxes[22]).tolist())
+    img.save('actual.png')
+    img.show()
 
-        print("predicted_class = ", predicted_class, "actual class = ", test_classes[22])
+    print("predicted_class = ", predicted_class, "actual class = ", test_classes[22])
         
 
 if __name__ == "__main__":
