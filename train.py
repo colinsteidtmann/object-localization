@@ -78,32 +78,32 @@ def create_model():
     l2_w_decay = tf.keras.regularizers.l2(l=1e-5)
 
     #FeatureMapConvNet
-    conv_layer1 = tf.keras.layers.Conv2D(filters=96, kernel_size=[11, 11], strides=[4, 4], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(inputs)
+    conv_layer1 = tf.keras.layers.SeparableConv2D(filters=96, kernel_size=[11, 11], strides=[4, 4], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(inputs)
     pool_layer1 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer1)
     
-    conv_layer2 = tf.keras.layers.Conv2D(filters=256, kernel_size=[5, 5], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer1)
+    conv_layer2 = tf.keras.layers.SeparableConv2D(filters=256, kernel_size=[5, 5], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer1)
     pool_layer2 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer2)
 
-    conv_layer3 = tf.keras.layers.Conv2D(filters=512, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer2)
-    conv_layer4 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(conv_layer3)
-    conv_layer5 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(conv_layer4)
+    conv_layer3 = tf.keras.layers.SeparableConv2D(filters=512, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer2)
+    conv_layer4 = tf.keras.layers.SeparableConv2D(filters=1024, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(conv_layer3)
+    conv_layer5 = tf.keras.layers.SeparableConv2D(filters=1024, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(conv_layer4)
     pool_layer5 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer5)
 
 
     """boxConvnet branch"""
-    box_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[6, 6], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer5)
+    box_conv_layer1 = tf.keras.layers.SeparableConv2D(filters=4096, kernel_size=[6, 6], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer5)
     dropout_box_layer1 = tf.keras.layers.Dropout(rate=0.5)(box_conv_layer1)
-    box_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(dropout_box_layer1)
+    box_conv_layer2 = tf.keras.layers.SeparableConv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(dropout_box_layer1)
     dropout_box_layer2 = tf.keras.layers.Dropout(rate=0.5)(box_conv_layer2)
-    box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear", kernel_regularizer=l2_w_decay)(dropout_box_layer2)
+    box_conv_layer3 = tf.keras.layers.SeparableConv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear", kernel_regularizer=l2_w_decay)(dropout_box_layer2)
     box_conv_layer3 = tf.keras.layers.Flatten(name='box_output')(box_conv_layer3)
 
     """classConvnet branch"""
-    class_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[6, 6], strides=[1, 1], padding="valid", data_format="channels_last", activation="relu")(pool_layer5)
+    class_conv_layer1 = tf.keras.layers.SeparableConv2D(filters=4096, kernel_size=[6, 6], strides=[1, 1], padding="valid", data_format="channels_last", activation="relu")(pool_layer5)
     dropout_class_layer1 = tf.keras.layers.Dropout(rate=0.5)(class_conv_layer1)
-    class_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(dropout_class_layer1)
+    class_conv_layer2 = tf.keras.layers.SeparableConv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(dropout_class_layer1)
     dropout_class_layer2 = tf.keras.layers.Dropout(rate=0.5)(class_conv_layer2)
-    class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(dropout_class_layer2)
+    class_conv_layer3 = tf.keras.layers.SeparableConv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(dropout_class_layer2)
     class_conv_layer3 = tf.keras.layers.Flatten(name='class_output')(class_conv_layer3)
 
     model_optimizer = tf.keras.optimizers.Nadam(lr=0.01)
@@ -132,7 +132,7 @@ def main():
 
     """ training """
     n_epochs = 25
-    batch_size = 64
+    batch_size = 128
 
     model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, validation_data=(test_images,[test_boxes,test_classes]))
     
