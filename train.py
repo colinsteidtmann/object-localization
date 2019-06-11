@@ -99,13 +99,13 @@ def create_model():
     
     """classConvnet branch"""
     class_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[4, 4], strides=[1, 1], padding="valid", data_format="channels_last", activation="relu")(norm_pool_layer5)
-    class_conv_layer1_dropout = tf.keras.layers.Dropout(rate=0.4)(class_conv_layer1)
+    class_conv_layer1_dropout = tf.keras.layers.Dropout(rate=0.2)(class_conv_layer1)
     class_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(class_conv_layer1_dropout)
-    class_conv_layer2_dropout = tf.keras.layers.Dropout(rate=0.4)(class_conv_layer2)
+    class_conv_layer2_dropout = tf.keras.layers.Dropout(rate=0.2)(class_conv_layer2)
     class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2_dropout)
     class_conv_layer3 = tf.keras.layers.Flatten(name='class_output')(class_conv_layer3)
 
-    model_optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    model_optimizer = tf.keras.optimizers.Adam(lr=0.005)
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
                 loss=[tf.keras.losses.MeanAbsoluteError(), tf.keras.losses.CategoricalCrossentropy()],
