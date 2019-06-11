@@ -109,11 +109,11 @@ def create_model():
     model_optimizer = tf.keras.optimizers.Nadam(lr=0.001)
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
-                loss=[tf.keras.losses.MeanAbsoluteError(), tf.keras.losses.MeanSquaredError()],
+                loss=[tf.keras.losses.MeanAbsoluteError(), tf.keras.losses.CategoricalCrossentropy()],
                 loss_weights={'box_output': 1.,
                         'class_output': 1.},
                 metrics={'box_output': 'mean_absolute_error',
-                        'class_output': 'mean_squared_error'})
+                        'class_output': 'categorical_crossentropy'})
 
 
     return model
@@ -134,10 +134,10 @@ def main():
     n_epochs = 50
     batch_size = 128
 
-    model.fit(x=train_images, y=[train_boxes,train_labels_one_hot], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, validation_data=(test_images,[test_boxes,test_labels_one_hot]))
+    model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, validation_data=(test_images,[test_boxes,test_classes]))
     
     """ testing """
-    score = model.evaluate(test_images, [test_boxes, test_labels_one_hot], verbose=0)
+    score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
     print(score)
 
     test_image_predictions = model.predict(test_images[22:23])
