@@ -14,7 +14,7 @@ import random
 TRAIN_CSV = "train.csv"
 VALIDATION_CSV = "validation.csv"
 NUM_CLASSES = 37
-IMAGE_SIZE = 224
+IMAGE_SIZE = 231
 
 
 class DataGenerator():
@@ -74,46 +74,44 @@ def create_model():
     #Inputs
     inputs = tf.keras.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
     
+    #l2 weight decay Regularizer
+    l2_w_decay = tf.keras.regularizers.l2(l=1e-5)
+
     #FeatureMapConvNet
-    conv_layer1 = tf.keras.layers.SeparableConv2D(filters=32, kernel_size=[5, 5], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(inputs)
+    conv_layer1 = tf.keras.layers.Conv2D(filters=96, kernel_size=[11, 11], strides=[4, 4], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(inputs)
     pool_layer1 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer1)
-    dropout_layer1 = tf.keras.layers.Dropout(rate=0.25)(pool_layer1)
     
-    conv_layer2 = tf.keras.layers.SeparableConv2D(filters=64, kernel_size=[5, 5], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(dropout_layer1)
+    conv_layer2 = tf.keras.layers.Conv2D(filters=256, kernel_size=[5, 5], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer1)
     pool_layer2 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer2)
-    dropout_layer2 = tf.keras.layers.Dropout(rate=0.25)(pool_layer2)
 
-    conv_layer3 = tf.keras.layers.SeparableConv2D(filters=128, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(dropout_layer2)
-    pool_layer3 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer3)
-    dropout_layer3 = tf.keras.layers.Dropout(rate=0.25)(pool_layer3)
-
-    conv_layer4 = tf.keras.layers.SeparableConv2D(filters=256, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(dropout_layer3)
-    pool_layer4 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer4)
-    dropout_layer4 = tf.keras.layers.Dropout(rate=0.25)(pool_layer4)
-
-    conv_layer5 = tf.keras.layers.SeparableConv2D(filters=512, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(dropout_layer4)
+    conv_layer3 = tf.keras.layers.Conv2D(filters=512, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer2)
+    conv_layer4 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(conv_layer3)
+    conv_layer5 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[3, 3], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(conv_layer4)
     pool_layer5 = tf.keras.layers.MaxPool2D(pool_size=[2, 2], strides=[2, 2], padding="valid", data_format="channels_last")(conv_layer5)
-    norm_pool_layer5 = tf.keras.layers.BatchNormalization(axis=-1)(pool_layer5)
-    dropout_layer5 = tf.keras.layers.Dropout(rate=0.25)(norm_pool_layer5)
+
 
     """boxConvnet branch"""
-    box_conv_layer1 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(dropout_layer5)
-    box_conv_layer2 = tf.keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(box_conv_layer1)
-    box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer2)
+    box_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[6, 6], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(pool_layer5)
+    dropout_box_layer1 = tf.keras.layers.Dropout(rate=0.5)(box_conv_layer1)
+    box_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu", kernel_regularizer=l2_w_decay)(dropout_box_layer1)
+    dropout_box_layer2 = tf.keras.layers.Dropout(rate=0.5)(box_conv_layer2)
+    box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear", kernel_regularizer=l2_w_decay)(dropout_box_layer2)
     box_conv_layer3 = tf.keras.layers.Flatten(name='box_output')(box_conv_layer3)
 
     """classConvnet branch"""
-    class_conv_layer1 = tf.keras.layers.Conv2D(filters=512, kernel_size=[4, 4], strides=[1, 1], padding="valid", data_format="channels_last", activation="relu")(dropout_layer5)
-    class_conv_layer2 = tf.keras.layers.Conv2D(filters=256, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(class_conv_layer1)
-    class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
+    class_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[6, 6], strides=[1, 1], padding="valid", data_format="channels_last", activation="relu")(pool_layer5)
+    dropout_class_layer1 = tf.keras.layers.Dropout(rate=0.5)(class_conv_layer1)
+    class_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(dropout_class_layer1)
+    dropout_class_layer2 = tf.keras.layers.Dropout(rate=0.5)(class_conv_layer2)
+    class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(dropout_class_layer2)
     class_conv_layer3 = tf.keras.layers.Flatten(name='class_output')(class_conv_layer3)
 
-    model_optimizer = tf.keras.optimizers.Nadam(lr=0.001)
+    model_optimizer = tf.keras.optimizers.Nadam(lr=0.01)
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
                 loss=[tf.keras.losses.MeanAbsoluteError(), tf.keras.losses.CategoricalCrossentropy()],
-                loss_weights={'box_output': 5.,
-                        'class_output': 0.5},
+                loss_weights={'box_output': 1.,
+                        'class_output': 1.},
                 metrics={'box_output': 'mean_absolute_error',
                         'class_output': 'categorical_accuracy'})
 
