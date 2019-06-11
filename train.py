@@ -131,8 +131,8 @@ def main():
     test_labels_one_hot = tf.keras.utils.to_categorical(test_classes, num_classes=NUM_CLASSES)
 
     """ training """
-    n_epochs = 50
-    batch_size = 128
+    n_epochs = 100
+    batch_size = 32
 
     model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, validation_data=(test_images,[test_boxes,test_classes]))
     
