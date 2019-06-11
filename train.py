@@ -105,12 +105,12 @@ def create_model():
     class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2_dropout)
     class_conv_layer3 = tf.keras.layers.Flatten(name='class_output')(class_conv_layer3)
 
-    model_optimizer = tf.keras.optimizers.Adam(lr=0.001)
+    model_optimizer = tf.keras.optimizers.Adam(lr=0.01)
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
                 loss=[tf.keras.losses.MeanAbsoluteError(), tf.keras.losses.CategoricalCrossentropy()],
-                loss_weights={'box_output': 10.,
-                        'class_output': 0.3},
+                loss_weights={'box_output': 5.,
+                        'class_output': 0.5},
                 metrics={'box_output': 'mean_absolute_error',
                         'class_output': 'categorical_accuracy'})
 
