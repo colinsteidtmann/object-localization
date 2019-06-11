@@ -97,14 +97,14 @@ def create_model():
     dropout_layer5 = tf.keras.layers.Dropout(rate=0.25)(norm_pool_layer5)
 
     """boxConvnet branch"""
-    box_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(dropout_layer5)
-    box_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(box_conv_layer1)
+    box_conv_layer1 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[4, 4], strides=[1, 1], padding="valid",data_format="channels_last", activation="relu")(dropout_layer5)
+    box_conv_layer2 = tf.keras.layers.Conv2D(filters=512, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(box_conv_layer1)
     box_conv_layer3 = tf.keras.layers.Conv2D(filters=4, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="linear")(box_conv_layer2)
     box_conv_layer3 = tf.keras.layers.Flatten(name='box_output')(box_conv_layer3)
 
     """classConvnet branch"""
-    class_conv_layer1 = tf.keras.layers.Conv2D(filters=4096, kernel_size=[4, 4], strides=[1, 1], padding="valid", data_format="channels_last", activation="relu")(dropout_layer5)
-    class_conv_layer2 = tf.keras.layers.Conv2D(filters=1024, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(class_conv_layer1)
+    class_conv_layer1 = tf.keras.layers.Conv2D(filters=512, kernel_size=[4, 4], strides=[1, 1], padding="valid", data_format="channels_last", activation="relu")(dropout_layer5)
+    class_conv_layer2 = tf.keras.layers.Conv2D(filters=256, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="relu")(class_conv_layer1)
     class_conv_layer3 = tf.keras.layers.Conv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(class_conv_layer2)
     class_conv_layer3 = tf.keras.layers.Flatten(name='class_output')(class_conv_layer3)
 
@@ -136,8 +136,7 @@ def main():
     n_epochs = 25
     batch_size = 64
 
-    callback = tf.keras.callbacks.EarlyStopping(monitor='val_class_output_loss', patience=3)
-    model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, callbacks=[callback], validation_data=(test_images,[test_boxes,test_classes]))
+    model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, validation_data=(test_images,[test_boxes,test_classes]))
     
     """ testing """
     score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
