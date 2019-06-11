@@ -130,6 +130,8 @@ def main():
     """ training """
     n_epochs = 25
     batch_size = 100
+    losses = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
+    print(model.metrics_names)
     model.fit(train_images, [train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2)
     
     """ testing """
