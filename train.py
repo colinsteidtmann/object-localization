@@ -132,7 +132,7 @@ def main():
     batch_size = 100
 
     callback = tf.keras.callbacks.EarlyStopping(monitor='val_class_output_loss')
-    model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, callbacks=callback, validation_data=(test_images,[test_boxes,test_classes]))
+    model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, callbacks=[callback], validation_data=(test_images,[test_boxes,test_classes]))
     
     """ testing """
     score = model.evaluate(test_images, [test_boxes, test_classes], verbose=0)
