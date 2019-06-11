@@ -106,7 +106,7 @@ def create_model():
     class_conv_layer3 = tf.keras.layers.SeparableConv2D(filters=NUM_CLASSES, kernel_size=[1, 1], strides=[1, 1], padding="same", data_format="channels_last", activation="softmax")(dropout_class_layer2)
     class_conv_layer3 = tf.keras.layers.Flatten(name='class_output')(class_conv_layer3)
 
-    model_optimizer = tf.keras.optimizers.Nadam(lr=0.05)
+    model_optimizer = tf.keras.optimizers.Nadam(lr=0.001)
     model = tf.keras.Model(inputs=inputs, outputs=[box_conv_layer3, class_conv_layer3])
     model.compile(optimizer=model_optimizer,
                 loss=[tf.keras.losses.MeanAbsoluteError(), tf.keras.losses.CategoricalCrossentropy()],
@@ -132,7 +132,7 @@ def main():
 
     """ training """
     n_epochs = 50
-    batch_size = 64
+    batch_size = 128
 
     model.fit(x=train_images, y=[train_boxes,train_classes], batch_size=batch_size, epochs=n_epochs, shuffle=True, verbose=2, validation_data=(test_images,[test_boxes,test_classes]))
     
